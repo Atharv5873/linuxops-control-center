@@ -3,3 +3,4 @@ logs/
 *.pid
 .env
 __pycache__/
+automation/locc.conf

@@ -1,0 +1,13 @@
+# ===== LinuxOps Control Center Configuration =====
+
+# Admin user to be created
+ADMIN_USER=loccadmin
+
+# SSH configuration
+SSH_PORT=22
+
+# Public SSH key ONLY (never private key)
+ADMIN_SSH_PUBLIC_KEY="ssh-ed25519 AAAA_REPLACE_WITH_YOUR_PUBLIC_KEY"
+
+# Feature flags
+INSTALL_NGINX=true

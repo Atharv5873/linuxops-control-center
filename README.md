@@ -41,14 +41,27 @@ All components are built using open-source tools and native Linux utilities, emp
 
 ## Core Components
 
-### 1. Server Automation Engine
+### 1. Server Automation Engine (Implemented)
 
-Automates:
+A fully automated, **config-driven Linux provisioning engine** that converts a fresh Ubuntu server into a secure, production-ready node.
 
-- User and SSH configuration  
-- Firewall and Fail2Ban setup  
-- System hardening  
-- Service installation (Nginx, MySQL, etc.)
+#### Features:
+- Config-driven automation via `locc.conf` (template committed, env-specific config ignored)
+- Secure admin user creation with sudo access
+- SSH hardening with public-key authentication (no passwords)
+- Automatic SSH public key injection
+- Configurable SSH port
+- UFW firewall with default deny policy
+- Fail2Ban for brute-force protection
+- Optional base service installation (Nginx)
+- Centralized execution logs at `/var/log/locc/automation.log`
+- Fully idempotent (safe to re-run)
+
+Provisioning is performed using a single command:
+```bash
+sudo bash automation/install.sh
+```
+
 
 ---
 
@@ -200,8 +213,11 @@ linuxops-control-center/
 
 ## Project Status
 
-**Current Phase:** Phase 1 – Architecture & Planning  
-**Upcoming:** Server Automation Engine (Phase 2)
+**Completed:** Phase 2 – Server Automation Engine  
+**In Progress:** Phase 3 – Monitoring Agent (systemd-based)
+
+The server automation layer is fully implemented, secure, idempotent, and production-ready.
+
 
 ---
 
