@@ -61,12 +61,33 @@ get_inode_usage_percent() {
 # =========================
 
 get_top_cpu_processes() {
-  ps -eo pid,comm,%cpu --sort=-%cpu | awk 'NR>1 && NR<=4 {print $1 "|" $2 "|" $3}' 2>/dev/null || true
+  ps -eo pid=,comm=,%cpu= --sort=-%cpu | head -n 3 | \
+  awk '
+  {
+    pid=$1
+    cpu=$NF
+    name=""
+    for (i=2; i<NF; i++) {
+      name = name (i==2 ? "" : " ") $i
+    }
+    printf "%s|%s|%s\n", pid, name, cpu
+  }' 2>/dev/null || true
 }
 
 get_top_memory_processes() {
-  ps -eo pid,comm,%mem --sort=-%mem | awk 'NR>1 && NR<=4 {print $1 "|" $2 "|" $3}' 2>/dev/null || true
+  ps -eo pid=,comm=,%mem= --sort=-%mem | head -n 3 | \
+  awk '
+  {
+    pid = $1
+    mem = $NF
+    name = ""
+    for (i = 2; i < NF; i++) {
+      name = name (i == 2 ? "" : " ") $i
+    }
+    printf "%s|%s|%s\n", pid, name, mem
+  }' 2>/dev/null || true
 }
+
 
 # =========================
 # Service Health
