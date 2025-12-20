@@ -1,0 +1,10 @@
+# ===== LOCC Slack Alerting Configuration =====
+
+# Slack Incoming Webhook URL
+SLACK_WEBHOOK_URL="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX"
+
+# Slack channel name (for message context)
+SLACK_CHANNEL="#alerts"
+
+# Slack username shown in messages
+SLACK_USERNAME="LOCC Alert Engine"

@@ -1,0 +1,12 @@
+# ===== LOCC ALERT THRESHOLDS =====
+
+CPU_USAGE_WARN=10
+MEMORY_USAGE_WARN=15
+DISK_USAGE_WARN=15
+INODE_USAGE_WARN=00
+
+# Service health
+ALERT_ON_SERVICE_DOWN=true
+
+# Cooldown (seconds) to avoid alert spam
+ALERT_COOLDOWN=300
