@@ -33,8 +33,14 @@ HOSTNAME="$2"
 CURRENT_VALUE="$3"
 THRESHOLD="$4"
 TIMESTAMP="$5"
+STATE="${6:-ALERT}"
 
-MESSAGE="🚨 *$ALERT_NAME*
+ICON="🚨"
+[[ "$STATE" == "RECOVERED" ]] && ICON="✅"
+
+
+
+MESSAGE="$ICON *$STATE: $ALERT_NAME*
 • Host: \`$HOSTNAME\`
 • Value: $CURRENT_VALUE (threshold: $THRESHOLD)
 • Time: $TIMESTAMP"
