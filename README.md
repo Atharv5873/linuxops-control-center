@@ -89,19 +89,41 @@ sudo bash automation/install.sh
 
 ---
 
-### 3. Alerting System
+### 3. Alerting System (Implemented)
 
-Triggers alerts when thresholds are breached:
+A **state-aware, threshold-based alerting engine** that evaluates structured monitoring data and detects abnormal system conditions in real time.
 
-- High CPU, memory, or disk usage  
-- Service failures  
-- Suspicious login attempts  
+#### Alert Conditions
+The alerting system currently triggers alerts for:
 
-Alerts are sent via:
+- High CPU usage
+- High memory usage
+- High disk usage
+- High inode usage
+- Critical service failures:
+  - `ssh`
+  - `nginx`
+  - `fail2ban`
+  - `ufw`
 
-- Slack  
-- Email  
-- Optional Telegram  
+Alerts are **edge-triggered**, meaning they fire only on state transitions (OK → ALERT) and include **recovery notifications** (ALERT → RECOVERED) to prevent alert fatigue.
+
+#### Design Highlights
+- Reads monitoring data from `/var/log/locc/agent.json`
+- Config-driven thresholds via `thresholds.conf`
+- Persistent alert state tracking to avoid duplicate alerts
+- Explicit ALERT and RECOVERED lifecycle handling
+- Structured alert logging for auditability
+
+#### Notification Channels
+Alerts are currently delivered via:
+
+- **Slack** (Incoming Webhooks)
+
+> Email and Telegram integrations are intentionally deferred to future phases to keep the alerting core focused and reliable.
+
+The alerting system is designed to integrate seamlessly with the upcoming **self-healing engine** while maintaining clear separation of concerns.
+
 
 ---
 
