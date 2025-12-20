@@ -89,6 +89,25 @@ get_top_memory_processes() {
 }
 
 
+
+get_top_cpu_processes_json() {
+  get_top_cpu_processes | \
+  awk -F'|' '
+  {
+    printf "{\"pid\":%d,\"name\":\"%s\",\"cpu_percent\":%s}\n", $1, $2, $3
+  }' | jq -s .
+}
+
+get_top_memory_processes_json() {
+  get_top_memory_processes | \
+  awk -F'|' '
+  {
+    printf "{\"pid\":%d,\"name\":\"%s\",\"mem_percent\":%s}\n", $1, $2, $3
+  }' | jq -s .
+}
+
+
+
 # =========================
 # Service Health
 # =========================
@@ -105,4 +124,3 @@ get_service_status() {
 
   echo "unknown"
 }
-
