@@ -65,15 +65,27 @@ sudo bash automation/install.sh
 
 ---
 
-### 2. Monitoring Agent
-
-A custom agent running via `systemd` that collects:
-
-- CPU, memory, disk, and inode usage  
-- Top processes  
-- Service health  
-- Network activity  
-- Security events  
+ ### 2. Monitoring Agent (Implemented)
+ 
+ A custom-built **Linux monitoring agent** managed by `systemd` timers that runs every 60 seconds and emits **structured JSON metrics**.
+ 
+ #### Capabilities:
+ - CPU usage and load averages
+ - Memory usage and utilization percentage
+ - Disk and inode usage (root filesystem)
+ - Top CPU- and memory-consuming processes
+ - Service health monitoring (`ssh`, `nginx`, `fail2ban`, `ufw`)
+ - System metadata (hostname, uptime, agent version)
+ 
+ #### Design Highlights:
+ - Runs as a hardened `systemd` oneshot service
+ - Scheduled via `systemd` timer (no cron)
+ - Stateless execution (one run = one JSON object)
+ - Append-only JSONL logs written to `/var/log/locc/agent.json`
+ - Fault-tolerant metric collection (missing metrics do not crash the agent)
+ 
+ The monitoring agent acts as the **data source** for alerting, self-healing, and dashboard layers in subsequent phases.
+ 
 
 ---
 
@@ -214,9 +226,11 @@ linuxops-control-center/
 ## Project Status
 
 **Completed:** Phase 2 – Server Automation Engine  
-**In Progress:** Phase 3 – Monitoring Agent (systemd-based)
+**Completed:** Phase 3 – Monitoring Agent (systemd-based)  
+**In Progress:** Phase 4 – Alerting Engine
 
-The server automation layer is fully implemented, secure, idempotent, and production-ready.
+The project now includes a production-ready Linux provisioning system and a fully functional systemd-managed monitoring agent emitting structured JSON metrics.
+
 
 
 ---
