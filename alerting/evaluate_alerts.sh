@@ -6,7 +6,7 @@ set -euo pipefail
 # =========================
 AGENT_LOG="/var/log/locc/agent.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-STATE_DB="$SCRIPT_DIR/state.db"
+STATE_DB="/var/log/locc/state.db"
 THRESHOLDS_CONF="$SCRIPT_DIR/thresholds.conf"
 ALERT_LOG="/var/log/locc/alerts.log"
 

@@ -1,0 +1,19 @@
+[Unit]
+Description=LinuxOps Control Center Alert Evaluation Engine
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/locc-alert.sh
+User=root
+Group=root
+
+# Safety
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/locc
+
+[Install]
+WantedBy=multi-user.target
