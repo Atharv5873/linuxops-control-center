@@ -8,7 +8,7 @@ ALERT_LOG="/var/log/locc/alerts.log"
 HEAL_LOG="/var/log/locc/healing.log"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RULES_CONF="$SCRIPT_DIR/rules.conf"
-STATE_DB="$SCRIPT_DIR/heal_state.db"
+STATE_DB="/var/log/locc/heal_state.db"
 
 mkdir -p /var/log/locc
 touch "$HEAL_LOG" "$STATE_DB"
