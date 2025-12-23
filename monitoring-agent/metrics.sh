@@ -117,7 +117,7 @@ get_service_status() {
 
   for unit in "$input.service" "${input%d}.service" "ssh.service"; do
     if systemctl list-unit-files --type=service | awk '{print $1}' | grep -qx "$unit"; then
-      systemctl is-active "$unit" 2>/dev/null || echo "inactive"
+      systemctl is-active "$unit" >/dev/null 2>&1 && echo active || echo inactive
       return
     fi
   done
