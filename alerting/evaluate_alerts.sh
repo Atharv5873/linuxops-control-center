@@ -49,7 +49,7 @@ set_alert_state() {
 }
 
 log_alert() {
-  echo "$(date -Is) $1" >> "$ALERT_LOG"
+  echo "$1" >> "$ALERT_LOG"
 }
 
 # =========================
