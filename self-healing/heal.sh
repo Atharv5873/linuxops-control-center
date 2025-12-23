@@ -40,6 +40,24 @@ update_heal_ts() {
 }
 
 # =========================
+# Disk Cleanup Helper
+# =========================
+cleanup_disk() {
+  local paths="$1"
+  local max_age="$2"
+
+  for p in $paths; do
+    if [[ -d "$p" ]]; then
+      log_heal "[DISK] Cleaning $p (*.log older than $max_age days)"
+      find "$p" -type f -name "*.log" -mtime +"$max_age" \
+        -print -delete >> "$HEAL_LOG" 2>&1
+    else
+      log_heal "[DISK] Skip non-existent path: $p"
+    fi
+  done
+}
+
+# =========================
 # Read latest alert
 # =========================
 [[ -f "$ALERT_LOG" ]] || exit 0
@@ -57,7 +75,6 @@ NOW="$(now_ts)"
 # =========================
 # Healing Logic
 # =========================
-
 case "$ALERT_NAME" in
 
   NGINX_DOWN)
@@ -87,6 +104,23 @@ case "$ALERT_NAME" in
       update_heal_ts "$ALERT_NAME" "$NOW"
     else
       log_heal "fail2ban restart FAILED"
+    fi
+    ;;
+
+  HIGH_DISK)
+    [[ "$AUTO_CLEANUP_DISK" == "true" ]] || exit 0
+
+    LAST_TS="$(get_last_heal_ts "$ALERT_NAME")"
+    (( NOW - LAST_TS >= DISK_CLEANUP_COOLDOWN )) || exit 0
+
+    log_heal "Starting disk cleanup"
+    if cleanup_disk "$DISK_CLEANUP_PATHS" "$DISK_LOG_MAX_AGE_DAYS"; then
+      log_heal "Disk cleanup executed"
+      update_heal_ts "$ALERT_NAME" "$NOW"
+    else
+      log_heal "Disk cleanup FAILED"
+      echo "HIGH_DISK_RECOVERY_FAILED|ALERT|$(hostname)|cleanup_failed|n/a|$(date -Is)" \
+        >> "$ALERT_LOG"
     fi
     ;;
 
