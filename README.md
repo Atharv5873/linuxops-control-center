@@ -159,6 +159,9 @@ A **rule-based, alert-driven remediation engine** that safely attempts recovery 
 
 A **read-only, real-time observability dashboard** that visualizes **system health, alerts, and self-healing activity**.
 
+#### Webpage Overview
+![Webpage](./docs/Webpage.png)
+
 #### Features
 
 - Live CPU, memory, disk, and uptime metrics
