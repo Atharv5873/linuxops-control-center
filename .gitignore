@@ -6,3 +6,4 @@ __pycache__/
 automation/locc.conf
 alerting/slack.conf
 dashboard/backend/venv/
+dashboard/backend/__init__.py

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from readers import read_latest_agent, read_alerts, read_healing
+from backend.readers import read_latest_agent, read_alerts, read_healing
 
 app = FastAPI(
     title="LinuxOps Control Center Dashboard API",

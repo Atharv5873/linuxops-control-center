@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build: .
+    container_name: locc-dashboard
+    ports:
+      - "8000:8000"
+    volumes:
+      - /var/log/locc:/var/log/locc:ro
+    restart: unless-stopped
