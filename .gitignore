@@ -5,3 +5,4 @@ logs/
 __pycache__/
 automation/locc.conf
 alerting/slack.conf
+backend/venv/
