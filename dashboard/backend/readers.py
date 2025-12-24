@@ -25,9 +25,16 @@ def read_alerts(limit=20):
         return []
 
     alerts = []
+
     with ALERT_LOG.open() as f:
-        for line in f.readlines()[-limit:]:
-            parts = line.strip().split("|")
+        for line in f:
+            line = line.strip()
+
+            if line.count("|") < 5:
+                continue
+
+            parts = line.split("|")
+
             if len(parts) >= 6:
                 alerts.append({
                     "alert": parts[0],
@@ -37,7 +44,9 @@ def read_alerts(limit=20):
                     "threshold": parts[4],
                     "timestamp": parts[5],
                 })
-    return alerts
+
+    return alerts[-limit:]
+
 
 
 def read_healing(limit=20):
