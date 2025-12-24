@@ -79,6 +79,21 @@ This guarantees:
 
 ---
 
+## Dashboard Screenshots
+
+### Overview
+![Dashboard Overview](./Webpage.png)
+
+### FastAPI Backend
+![SwaggerUI](./SwaggerUI.png)
+
+### Charts
+![Charts](./Charts.png)
+
+### Top Processer and Alerts
+![Top Processer and Alerts](./Processes.png)
+--- 
+
 ## Security Considerations
 
 - No privileged containers
