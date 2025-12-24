@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinuxOps Control Center | Real-time System Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">⚡</div>
+                    <div>
+                        <h1 class="logo-title">LinuxOps Control Center</h1>
+                        <p class="logo-subtitle">Real-time System Observability</p>
+                    </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-indicator">
+                        <span class="status-dot pulsing"></span>
+                        <span class="status-text">Live</span>
+                    </div>
+                    <div class="last-update">
+                        Last updated: <span id="lastUpdate">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="main-content">
+        <div class="container">
+            <!-- System Overview Cards -->
+            <section class="metrics-section">
+                <h2 class="section-title">System Metrics</h2>
+                <div class="metrics-grid">
+                    <!-- CPU Card -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon cpu-icon">🔥</div>
+                            <h3 class="metric-title">CPU Usage</h3>
+                        </div>
+                        <div class="metric-value" id="cpuValue">--</div>
+                        <div class="metric-footer">
+                            <div class="metric-label">Load Average</div>
+                            <div class="metric-detail" id="loadAvg">-- / -- / --</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill cpu-bar" id="cpuBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Memory Card -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon memory-icon">💾</div>
+                            <h3 class="metric-title">Memory Usage</h3>
+                        </div>
+                        <div class="metric-value" id="memoryValue">--</div>
+                        <div class="metric-footer">
+                            <div class="metric-label">Used / Total</div>
+                            <div class="metric-detail" id="memoryDetail">-- / -- MB</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill memory-bar" id="memoryBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Disk Card -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon disk-icon">💿</div>
+                            <h3 class="metric-title">Disk Usage</h3>
+                        </div>
+                        <div class="metric-value" id="diskValue">--</div>
+                        <div class="metric-footer">
+                            <div class="metric-label">Used / Total</div>
+                            <div class="metric-detail" id="diskDetail">-- / -- GB</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-bar-fill disk-bar" id="diskBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Uptime Card -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon uptime-icon">⏱️</div>
+                            <h3 class="metric-title">System Uptime</h3>
+                        </div>
+                        <div class="metric-value" id="uptimeValue">--</div>
+                        <div class="metric-footer">
+                            <div class="metric-label">Hostname</div>
+                            <div class="metric-detail" id="hostname">--</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Status -->
+            <section class="services-section">
+                <h2 class="section-title">Service Status</h2>
+                <div class="services-grid">
+                    <div class="service-badge" id="sshService">
+                        <span class="service-name">SSH</span>
+                        <span class="service-status">--</span>
+                    </div>
+                    <div class="service-badge" id="nginxService">
+                        <span class="service-name">NGINX</span>
+                        <span class="service-status">--</span>
+                    </div>
+                    <div class="service-badge" id="fail2banService">
+                        <span class="service-name">Fail2Ban</span>
+                        <span class="service-status">--</span>
+                    </div>
+                    <div class="service-badge" id="ufwService">
+                        <span class="service-name">UFW</span>
+                        <span class="service-status">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <h2 class="section-title">Performance Trends</h2>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">CPU Usage Over Time</h3>
+                        <canvas id="cpuChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Memory Usage Over Time</h3>
+                        <canvas id="memoryChart"></canvas>
+                    </div>
+                    <div class="chart-card full-width">
+                        <h3 class="chart-title">Disk Usage Over Time</h3>
+                        <canvas id="diskChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Processes -->
+            <section class="processes-section">
+                <h2 class="section-title">Top Processes</h2>
+                <div class="processes-grid">
+                    <div class="process-card">
+                        <h3 class="process-title">Top CPU Consumers</h3>
+                        <div class="process-list" id="topCpu"></div>
+                    </div>
+                    <div class="process-card">
+                        <h3 class="process-title">Top Memory Consumers</h3>
+                        <div class="process-list" id="topMemory"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alerts Table -->
+            <section class="alerts-section">
+                <h2 class="section-title">
+                    Recent Alerts
+                    <span class="alert-count" id="alertCount">0</span>
+                </h2>
+                <div class="table-wrapper">
+                    <table class="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>Alert Type</th>
+                                <th>State</th>
+                                <th>Host</th>
+                                <th>Value</th>
+                                <th>Threshold</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody">
+                            <tr>
+                                <td colspan="6" class="no-data">Loading alerts...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Self-Healing Activity -->
+            <section class="healing-section">
+                <h2 class="section-title">
+                    Self-Healing Activity
+                    <span class="healing-count" id="healingCount">0</span>
+                </h2>
+                <div class="healing-log" id="healingLog">
+                    <div class="log-entry">Loading healing events...</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 LinuxOps Control Center | Auto-refresh every 5 seconds</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
