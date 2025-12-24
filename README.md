@@ -2,11 +2,11 @@
 
 ## Overview
 
-LinuxOps Control Center (LOCC) is a production-style Linux infrastructure automation and monitoring platform designed to provision, secure, monitor, alert, and self-heal Linux servers with minimal manual intervention.
+**LinuxOps Control Center (LOCC)** is a **production-style Linux infrastructure automation and observability platform** designed to **provision, secure, monitor, alert, self-heal, and visualize Linux servers** with minimal manual intervention.
 
-This project simulates real-world DevOps / SRE tooling used inside engineering teams to manage Linux servers reliably and at scale.
+The project simulates **real-world DevOps / SRE tooling** used to operate Linux servers reliably, focusing on **native Linux primitives** (`systemd`, Bash, logs) rather than heavyweight third-party platforms.
 
-LOCC is self-hosted, lightweight, and built using core Linux administration principles, making it ideal for learning and demonstrating Linux, DevOps, and Infrastructure Engineering skills.
+LOCC is **lightweight, self-hosted, cloud-ready**, and built to demonstrate **practical Linux, DevOps, and Reliability Engineering skills**.
 
 ---
 
@@ -14,142 +14,176 @@ LOCC is self-hosted, lightweight, and built using core Linux administration prin
 
 In many environments, Linux servers are:
 
-- Manually configured, leading to inconsistencies  
-- Poorly monitored, causing late failure detection  
-- Dependent on heavy or expensive third-party monitoring tools  
-- Lacking automated recovery mechanisms  
-- Missing centralized visibility into system health and security events  
+- Manually configured, causing **drift and inconsistency**
+- Poorly monitored, leading to **late failure detection**
+- Dependent on **heavy or expensive monitoring stacks**
+- Lacking **automated remediation**
+- Missing a **clear, centralized view of system health**
 
-These issues result in downtime, operational risk, and slow incident response.
+These issues increase **downtime**, **operational risk**, and **incident response time**.
 
 ---
 
 ## Solution
 
-LinuxOps Control Center (LOCC) addresses these challenges by providing:
+**LinuxOps Control Center** addresses these problems by providing:
 
-- One-click automated server provisioning  
-- Continuous system monitoring using a custom agent  
-- Real-time alerting via Slack / Email  
-- Automated self-healing for common failures  
-- Centralized logs and a web-based dashboard  
-- Cloud-ready deployment (AWS / GCP / VPS)  
+- **One-click automated server provisioning**
+- **Continuous system monitoring** via a custom agent
+- **Event-driven alerting** with recovery awareness
+- **Safe, rule-based self-healing**
+- A **read-only, real-time web dashboard**
+- **Dockerized visualization layer** with host-safe access
 
-All components are built using open-source tools and native Linux utilities, emphasizing reliability, observability, and automation.
+All components are built using **open-source tools and native Linux utilities**, emphasizing **clarity, safety, and observability**.
 
 ---
 
 ## Core Components
 
-### 1. Server Automation Engine (Implemented)
+### 1. Server Automation Engine *(Implemented)*
 
-A fully automated, **config-driven Linux provisioning engine** that converts a fresh Ubuntu server into a secure, production-ready node.
+A **config-driven Linux provisioning engine** that converts a fresh Ubuntu server into a **secure, production-ready node**.
 
-#### Features:
-- Config-driven automation via `locc.conf` (template committed, env-specific config ignored)
+#### Features
+
+- Config-driven execution via `locc.conf`
 - Secure admin user creation with sudo access
-- SSH hardening with public-key authentication (no passwords)
+- SSH hardening (key-only authentication, configurable port)
 - Automatic SSH public key injection
-- Configurable SSH port
 - UFW firewall with default deny policy
 - Fail2Ban for brute-force protection
-- Optional base service installation (Nginx)
-- Centralized execution logs at `/var/log/locc/automation.log`
-- Fully idempotent (safe to re-run)
+- Optional base service installation (NGINX)
+- Centralized logs at `/var/log/locc/automation.log`
+- Fully **idempotent** (safe to re-run)
 
-Provisioning is performed using a single command:
+#### Usage 
 ```bash
 sudo bash automation/install.sh
 ```
 
+--- 
+
+### 2. Monitoring Agent *(Implemented)*
+
+A **custom Linux monitoring agent** managed by **systemd timers** that runs every **60 seconds** and emits **structured JSON metrics**.
+
+#### Collected Metrics
+
+- CPU usage and load averages
+- Memory usage and utilization
+- Disk and inode usage (root filesystem)
+- Top CPU and memory consuming processes
+- Service health (`ssh`, `nginx`, `fail2ban`, `ufw`)
+- System metadata (hostname, uptime, agent version)
+
+#### Design Highlights
+
+- `systemd`-managed **oneshot execution**
+- **Timer-based scheduling** (no cron)
+- **Stateless execution model**
+- **Append-only JSONL output**
+- **Fault-tolerant metric collection**
+
+#### Output
+
+```bash
+/var/log/locc/agent.json
+```
+This agent acts as the single source of truth for alerting, self-healing, and visualization.
 
 ---
 
- ### 2. Monitoring Agent (Implemented)
- 
- A custom-built **Linux monitoring agent** managed by `systemd` timers that runs every 60 seconds and emits **structured JSON metrics**.
- 
- #### Capabilities:
- - CPU usage and load averages
- - Memory usage and utilization percentage
- - Disk and inode usage (root filesystem)
- - Top CPU- and memory-consuming processes
- - Service health monitoring (`ssh`, `nginx`, `fail2ban`, `ufw`)
- - System metadata (hostname, uptime, agent version)
- 
- #### Design Highlights:
- - Runs as a hardened `systemd` oneshot service
- - Scheduled via `systemd` timer (no cron)
- - Stateless execution (one run = one JSON object)
- - Append-only JSONL logs written to `/var/log/locc/agent.json`
- - Fault-tolerant metric collection (missing metrics do not crash the agent)
- 
- The monitoring agent acts as the **data source** for alerting, self-healing, and dashboard layers in subsequent phases.
- 
+### 3. Alerting Engine *(Implemented)*
 
----
+A **state-aware, event-driven alerting system** that evaluates monitoring data and detects abnormal conditions.
 
-### 3. Alerting System (Implemented)
-
-A **state-aware, threshold-based alerting engine** that evaluates structured monitoring data and detects abnormal system conditions in real time.
-
-#### Alert Conditions
-The alerting system currently triggers alerts for:
+#### Alert Types
 
 - High CPU usage
 - High memory usage
 - High disk usage
 - High inode usage
-- Critical service failures:
-  - `ssh`
-  - `nginx`
-  - `fail2ban`
-  - `ufw`
+- Critical service failures (`ssh`, `nginx`, `fail2ban`, `ufw`)
 
-Alerts are **edge-triggered**, meaning they fire only on state transitions (OK → ALERT) and include **recovery notifications** (ALERT → RECOVERED) to prevent alert fatigue.
+#### Alert Lifecycle
+
+- **`ALERT`** → condition breached  
+- **`RECOVERED`** → condition resolved  
+- **`*_RECOVERY_FAILED`** → automated remediation failed  
+
+Alerts are **edge-triggered**, preventing alert fatigue and repeated notifications.
 
 #### Design Highlights
-- Reads monitoring data from `/var/log/locc/agent.json`
-- Config-driven thresholds via `thresholds.conf`
-- Persistent alert state tracking to avoid duplicate alerts
-- Explicit ALERT and RECOVERED lifecycle handling
-- Structured alert logging for auditability
 
-#### Notification Channels
-Alerts are currently delivered via:
+- Reads from `/var/log/locc/agent.json`
+- Thresholds defined in `thresholds.conf`
+- Persistent state tracking (`state.db`)
+- Structured, machine-parseable logs
+- Clean separation from remediation logic
+
+#### Notifications
 
 - **Slack** (Incoming Webhooks)
 
-> Email and Telegram integrations are intentionally deferred to future phases to keep the alerting core focused and reliable.
+---
 
-The alerting system is designed to integrate seamlessly with the upcoming **self-healing engine** while maintaining clear separation of concerns.
+### 4. Self-Healing Engine *(Implemented)*
 
+A **rule-based, alert-driven remediation engine** that safely attempts recovery actions **only when alerts occur**.
+
+#### Supported Actions
+
+- Automatic restart of failed services
+- Guarded disk cleanup for high disk usage
+- Cooldown-protected execution
+- Explicit escalation on recovery failure
+
+#### Safety Principles
+
+- No direct metric polling
+- No blind loops
+- Rule-controlled enablement
+- Audit-logged actions
+- `systemd`-managed execution
+
+#### Logs
+
+```bash
+/var/log/locc/healing.log
+```
 
 ---
 
-### 4. Self-Healing Engine
+### 5. Web Dashboard *(Implemented)*
 
-Automatically:
+A **read-only, real-time observability dashboard** that visualizes **system health, alerts, and self-healing activity**.
 
-- Restarts failed services  
-- Kills rogue processes  
-- Cleans disk space  
-- Rotates logs  
-- Recovers from common failure states  
+#### Features
 
----
+- Live CPU, memory, disk, and uptime metrics
+- Service status indicators
+- Real-time charts (CPU / Memory / Disk)
+- Alert history with state-based coloring
+- Self-healing activity log (terminal-style)
+- Responsive, dark **DevOps-style UI**
 
-### 5. Web Dashboard
+#### Architecture
 
-Provides:
+- **FastAPI** backend (log readers)
+- Pure **HTML / CSS / JavaScript** frontend
+- **Chart.js** via CDN
+- No frameworks, no build tools
+- **Dockerized** for safe deployment
 
-- Real-time system metrics  
-- Service status  
-- Alert history  
-- Security events  
-- Log visibility  
+#### Docker Deployment
 
----
+```bash
+cd dashboard
+docker compose up --build
+```
+
+The container mounts `/var/log/locc` read-only, ensuring zero host control.
 
 ## High-Level Architecture
 ```mermaid
@@ -169,49 +203,38 @@ flowchart TD
 
     %% ===== Runtime Layer =====
     subgraph Runtime["Runtime Layer (Linux Server)"]
+        TimerAgent[systemd Timer]
         Agent[Monitoring Agent]
-        Timer[systemd Timer]
-        Logs[Structured JSON Logs<br>/var/log/locc]
+        Logs[Structured Logs<br>/var/log/locc]
     end
 
-    Timer -->|Every 60s| Agent
+    TimerAgent -->|Every 60s| Agent
     Agent --> Logs
 
-    %% ===== Decision Layer =====
-    Agent --> Thresholds[Threshold Evaluation]
-    Thresholds -->|Normal| Logs
-    Thresholds -->|Breach| Alerts[Alert Engine]
-
     %% ===== Alerting Layer =====
-    Alerts --> Slack[Slack Notifications]
-    Alerts --> Email[Email Alerts]
-    Alerts --> Telegram[Telegram Bot]
+    Logs --> AlertEngine[Alerting Engine]
+    AlertEngine -->|ALERT / RECOVERED| AlertLog[alerts.log]
+    AlertEngine --> Slack[Slack Notifications]
 
     %% ===== Self-Healing Layer =====
-    Thresholds -->|Critical| Healing[Self-Healing Engine]
+    AlertLog --> Healing[Self-Healing Engine]
     Healing --> Restart[Service Restart]
-    Healing --> Cleanup[Resource Cleanup]
-    Healing --> RecoveryLog[Recovery Logs]
+    Healing --> Cleanup[Disk Cleanup]
+    Healing --> HealLog[healing.log]
 
     %% ===== Dashboard Layer =====
     Logs --> API[FastAPI Backend]
-    RecoveryLog --> API
-    Alerts --> API
+    AlertLog --> API
+    HealLog --> API
     API --> Dashboard[Web Dashboard]
-
-    %% ===== Optional Centralized Logging =====
-    Logs --> Central[Central Log Collector]
-    Central --> SIEM[Aggregated View]
 
     %% ===== Cloud Layer =====
     subgraph Cloud["Cloud Infrastructure"]
-        VM[AWS EC2 / GCP VM]
+        VM[AWS EC2 / On-Prem VM]
     end
 
     VM --- Setup
 ```
-
----
 
 ## Tech Stack
 
@@ -225,62 +248,53 @@ flowchart TD
 ![AWS](https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 
----
-
-## Project Structure
-
+### Project Structure
 ```
 linuxops-control-center/
-├── automation/          # Server provisioning scripts
-├── monitoring-agent/    # Monitoring agent & systemd units
-├── alerting/            # Alert dispatchers
-├── self-healing/        # Recovery and remediation scripts
-├── dashboard/           # Web dashboard (API + UI)
-├── docs/                # Architecture & documentation
-├── logs/                # Local log storage (ignored in git)
-├── install.sh           # One-click installer
+├── automation/
+├── monitoring-agent/
+├── alerting/
+├── self-healing/
+├── dashboard/
+├── docs/
+├── logs/
 ├── README.md
-└── LICENSE
+└── LICENSE.md
 ```
-
----
 
 ## Project Status
 
-**Completed:** Phase 2 – Server Automation Engine  
-**Completed:** Phase 3 – Monitoring Agent (systemd-based)  
-**In Progress:** Phase 4 – Alerting Engine
+**Completed**
 
-The project now includes a production-ready Linux provisioning system and a fully functional systemd-managed monitoring agent emitting structured JSON metrics.
+- Server Automation Engine  
+- Monitoring Agent  
+- Alerting Engine  
+- Self-Healing Engine  
+- Web Dashboard  
+- Dockerized Visualization Layer  
 
-
+This project represents a **complete, end-to-end autonomous Linux operations platform**.
 
 ---
 
 ## Learning Outcomes
 
-This project demonstrates practical knowledge of:
+This project demonstrates hands-on experience with:
 
-- Linux system administration  
-- Bash automation  
-- Monitoring and observability  
-- Alerting and incident response  
-- Reliability engineering (self-healing)  
-- System design and documentation  
-- Cloud-based Linux deployments  
+- Linux system administration
+- Bash automation
+- `systemd` services and timers
+- Observability and monitoring
+- Event-driven alerting
+- Safe self-healing design
+- Dockerized service deployment
+- Production-style system architecture
 
 ---
 
 ## Use Cases
 
-- Personal Linux infrastructure lab  
-- DevOps / SRE portfolio project  
-- Learning Linux automation and monitoring  
-- Demonstrating production-style system design  
-
----
-
-## License
-
-This project is licensed under the MIT License.
-
+- **DevOps / SRE portfolio project**
+- **Personal Linux infrastructure lab**
+- **Learning production Linux operations**
+- **Demonstrating real-world system design**
